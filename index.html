@@ -26,33 +26,29 @@
       font-family: 'Press Start 2P', cursive; 
     }
     
-    /* The Dark Room (Background behind the TV) */
     body { 
       background-color: #0a0a0c; 
       background-image: radial-gradient(circle at center, #111 0%, #000 100%);
       margin: 0; 
-      padding: 20px; 
+      padding: 0; /* Removed padding to allow full stretch */
       display: flex; 
       justify-content: center;
       align-items: center;
       min-height: 100vh; 
       text-transform: uppercase;
+      overflow: hidden; /* Prevents body scroll, keeps it locked to cabinet */
     }
 
     /* --- THE PHYSICAL CABINET --- */
     .cabinet {
       background-color: var(--cabinet);
       width: 100%;
-      max-width: 480px;
-      height: 90vh;
-      max-height: 850px;
-      border-radius: 20px;
-      padding: 30px 20px 50px 20px;
-      box-shadow: 
-        0 20px 50px rgba(0,0,0,1), 
-        inset 0 3px 5px rgba(255,255,255,0.1), /* top highlight */
-        inset 0 -5px 15px rgba(0,0,0,0.8); /* bottom shadow */
-      border: 2px solid #222;
+      max-width: 100%; /* Allows it to stretch to the edge */
+      height: 100vh;
+      max-height: 100vh;
+      border-radius: 0; /* Removed rounded corners to fit flush */
+      padding: 20px 20px 30px 20px;
+      box-shadow: inset 0 3px 5px rgba(255,255,255,0.1), inset 0 -5px 15px rgba(0,0,0,0.8);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -64,16 +60,13 @@
       width: 100%;
       height: 100%;
       background-color: #000;
-      border-radius: 40px 40px 40px 40px / 30px 30px 30px 30px; /* Simulates curved glass */
-      border: 12px solid #050505; /* The inner plastic bezel */
-      box-shadow: 
-        inset 0 0 30px rgba(0,0,0,1), 
-        0 0 15px rgba(57,255,20,0.15); /* Slight glow spilling onto the bezel */
+      border-radius: 30px 30px 30px 30px / 20px 20px 20px 20px; 
+      border: 12px solid #050505; 
+      box-shadow: inset 0 0 30px rgba(0,0,0,1), 0 0 15px rgba(57,255,20,0.15); 
       position: relative;
-      overflow: hidden; /* Traps the scanlines inside the screen */
+      overflow: hidden; 
     }
 
-    /* The actual scrollable game area inside the glass */
     .game-content {
       width: 100%;
       height: 100%;
@@ -83,7 +76,7 @@
       color: var(--text);
     }
 
-    /* --- CRT VISUAL EFFECTS (Now Absolute instead of Fixed) --- */
+    /* --- CRT VISUAL EFFECTS --- */
     .crt-overlay {
       position: absolute;
       top: 0; left: 0;
@@ -101,7 +94,7 @@
       background: radial-gradient(circle, rgba(0,0,0,0) 50%, rgba(0,0,0,0.8) 100%);
       pointer-events: none;
       z-index: 999;
-      box-shadow: inset 0 0 20px rgba(255,255,255,0.05); /* Glare on the curved glass */
+      box-shadow: inset 0 0 20px rgba(255,255,255,0.05); 
     }
 
     .scan-bar {
@@ -127,7 +120,8 @@
       justify-content: space-between;
       align-items: center;
       width: 90%;
-      margin-top: 25px;
+      max-width: 800px;
+      margin-top: 20px;
     }
 
     .speaker-grille {
@@ -149,19 +143,23 @@
       box-shadow: 0 0 10px #ff0000, inset 0 0 5px #fff;
     }
     
-    /* --- APP UI (Inside the game-content) --- */
+    /* --- APP UI --- */
     h1 { 
       margin-top: 0; 
       text-align: center; 
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       line-height: 1.5;
-      color: var(--accent);
-      text-shadow: var(--glow-accent);
+      color: #ffffff; /* Brighter pure white core */
+      text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 30px var(--accent); /* Intense neon glow */
+      position: relative;
+      z-index: 1005; /* Bumps it above the dark vignette and scanlines */
     }
     
     .screen { 
       display: none; 
       width: 100%; 
+      max-width: 600px; /* Keeps buttons from looking weirdly long on ultrawide monitors */
+      margin: 0 auto; /* Centers the content */
       flex-direction: column; 
       gap: 15px; 
     }
@@ -443,7 +441,6 @@
         
         container.innerHTML += `<button class="btn btn-spin" style="width:100%; margin-top:15px;" onclick="resetGame()">INSERT COIN</button>`;
         
-        // Scroll to bottom so they see the button
         document.querySelector('.game-content').scrollTop = document.querySelector('.game-content').scrollHeight;
         return;
       }
