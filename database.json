@@ -86,6 +86,31 @@
       "Double Jump (Various)", "Dodge Roll (Various)",
       "Active Reload (Gears of War)", "Parry (Street Fighter / Souls)",
       "Witch Time (Bayonetta)", "Phase Shift (Titanfall)", "Smart Core (Titanfall)"
+    ],
+    "Legendary Maps & Levels": [
+      "Blood Gulch (Halo: CE)", "Dust II (CS:GO)", "Nuketown (Call of Duty: Black Ops)", 
+      "Rainbow Road (Mario Kart)", "Final Destination (Smash Bros)", "Facing Worlds (Unreal Tournament)",
+      "2Fort (Team Fortress 2)", "Rust (Call of Duty: MW2)", "Lockout (Halo 2)", 
+      "Terminal (Call of Duty: MW2)", "Hyrule Field (Zelda: Ocarina of Time)", "Summoner's Rift (League of Legends)",
+      "Raccoon City Police Dept (Resident Evil 2)", "Shadow Moses Island (Metal Gear Solid)", "Spencer Mansion (Resident Evil)",
+      "City 17 (Half-Life 2)", "Rapture (BioShock)", "Ishimura (Dead Space)", "Midgar (Final Fantasy VII)",
+      "Anor Londo (Dark Souls)", "Green Hill Zone (Sonic the Hedgehog)", "King's Row (Overwatch)", "Ascent (Valorant)"
+    ],
+    "Greatest Campaigns": [
+      "The Last of Us (Part I)", "Red Dead Redemption 2", "Halo: Combat Evolved", 
+      "Mass Effect 2", "BioShock", "The Witcher 3: Wild Hunt", 
+      "Portal 2", "Half-Life 2", "God of War (2018)", 
+      "Chrono Trigger", "Zelda: Ocarina of Time", "Super Mario Galaxy",
+      "Metal Gear Solid 3: Snake Eater", "Final Fantasy VII", "Grand Theft Auto: San Andreas",
+      "Batman: Arkham City", "Bloodborne", "Hollow Knight", "Fallout: New Vegas", "Cyberpunk 2077"
+    ],
+    "Best Boss Fights": [
+      "Ornstein & Smough (Dark Souls)", "Sword Saint Isshin (Sekiro)", "Sephiroth (Final Fantasy VII)",
+      "The Boss (Metal Gear Solid 3)", "Mr. Freeze (Batman: Arkham City)", "GLaDOS (Portal)",
+      "Psycho Mantis (Metal Gear Solid)", "Malenia, Blade of Miquella (Elden Ring)", "Slave Knight Gael (Dark Souls III)",
+      "Vergil (Devil May Cry 3)", "Senator Armstrong (Metal Gear Rising)", "Bowser (Super Mario 64)",
+      "Ganondorf (Zelda: Ocarina of Time)", "Ludwig, the Holy Blade (Bloodborne)", "Sigrun (God of War)",
+      "Poseidon (God of War III)", "Nemesis (Resident Evil 3)", "Gehrman, the First Hunter (Bloodborne)"
     ]
   }
 }
