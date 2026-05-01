@@ -213,7 +213,7 @@
         <p>2. A RANDOM ITEM WILL APPEAR.</p>
         <p>3. RANK IT IN A SLOT (1-5).</p>
         <p>4. NO CHANGING ONCE PLACED!</p>
-        <p>5. GET YOUR META SYNERGY SCORE.</p>
+        <p>5. GET YOUR META SCORE.</p>
         
         <div style="height: 5px; border-bottom: 2px dashed #333; width: 100%;"></div>
         
@@ -561,7 +561,7 @@
         let finalPercent = Math.round(100 - ((totalOffset / 12) * 100));
         saveStats(finalPercent); 
 
-        currentItemBox.innerHTML = `META SYNERGY:<br><span style="font-size:1.8rem; color: #fff; text-shadow: 0 0 10px #fff;">${finalPercent}%</span>`;
+        currentItemBox.innerHTML = `META SCORE:<br><span style="font-size:1.8rem; color: #fff; text-shadow: 0 0 10px #fff;">${finalPercent}%</span>`;
         currentItemBox.style.color = "var(--accent)";
         currentItemBox.style.borderColor = "var(--accent)";
         currentItemBox.style.boxShadow = "var(--glow-box)";
