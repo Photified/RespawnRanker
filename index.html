@@ -8,11 +8,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #050505; /* Slightly off-black for the monitor base */
+      --bg: #050505; 
       --text: #e0e0e0;
       --accent: #39ff14; 
       --secondary: #ff0055; 
-      --card: #111111;
+      --cabinet: #1a1a1a;
       
       /* Glow Presets */
       --glow-accent: 0 0 5px var(--accent), 0 0 15px var(--accent);
@@ -26,27 +26,68 @@
       font-family: 'Press Start 2P', cursive; 
     }
     
+    /* The Dark Room (Background behind the TV) */
     body { 
-      background-color: var(--bg); 
-      color: var(--text); 
+      background-color: #0a0a0c; 
+      background-image: radial-gradient(circle at center, #111 0%, #000 100%);
       margin: 0; 
       padding: 20px; 
       display: flex; 
-      flex-direction: column; 
-      align-items: center; 
+      justify-content: center;
+      align-items: center;
       min-height: 100vh; 
       text-transform: uppercase;
-      text-shadow: var(--glow-text);
-      overflow-x: hidden;
     }
 
-    /* --- CRT MONITOR OVERLAYS --- */
+    /* --- THE PHYSICAL CABINET --- */
+    .cabinet {
+      background-color: var(--cabinet);
+      width: 100%;
+      max-width: 480px;
+      height: 90vh;
+      max-height: 850px;
+      border-radius: 20px;
+      padding: 30px 20px 50px 20px;
+      box-shadow: 
+        0 20px 50px rgba(0,0,0,1), 
+        inset 0 3px 5px rgba(255,255,255,0.1), /* top highlight */
+        inset 0 -5px 15px rgba(0,0,0,0.8); /* bottom shadow */
+      border: 2px solid #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    /* --- THE CRT SCREEN (TUBE) --- */
+    .crt-monitor {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      border-radius: 40px 40px 40px 40px / 30px 30px 30px 30px; /* Simulates curved glass */
+      border: 12px solid #050505; /* The inner plastic bezel */
+      box-shadow: 
+        inset 0 0 30px rgba(0,0,0,1), 
+        0 0 15px rgba(57,255,20,0.15); /* Slight glow spilling onto the bezel */
+      position: relative;
+      overflow: hidden; /* Traps the scanlines inside the screen */
+    }
+
+    /* The actual scrollable game area inside the glass */
+    .game-content {
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+      overflow-y: auto;
+      text-shadow: var(--glow-text);
+      color: var(--text);
+    }
+
+    /* --- CRT VISUAL EFFECTS (Now Absolute instead of Fixed) --- */
     .crt-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
       background-size: 100% 4px;
       pointer-events: none;
@@ -54,54 +95,75 @@
     }
 
     .crt-vignette {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle, rgba(0,0,0,0) 50%, rgba(0,0,0,0.8) 100%);
       pointer-events: none;
       z-index: 999;
+      box-shadow: inset 0 0 20px rgba(255,255,255,0.05); /* Glare on the curved glass */
     }
 
     .scan-bar {
       width: 100%;
-      height: 8px;
+      height: 10px;
       background: rgba(57, 255, 20, 0.15);
-      position: fixed;
-      top: 0;
+      position: absolute;
       left: 0;
-      animation: scanline 8s linear infinite;
+      animation: scanline 6s linear infinite;
       pointer-events: none;
       z-index: 1001;
-      box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+      box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
     }
 
     @keyframes scanline {
-      0% { transform: translateY(-100vh); }
-      100% { transform: translateY(100vh); }
+      0% { top: -10%; }
+      100% { top: 110%; }
     }
     
-    /* --- APP UI --- */
+    /* --- PHYSICAL CABINET DETAILS --- */
+    .cabinet-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 90%;
+      margin-top: 25px;
+    }
+
+    .speaker-grille {
+      display: flex;
+      gap: 4px;
+    }
+
+    .speaker-hole {
+      width: 6px; height: 15px;
+      background-color: #050505;
+      border-radius: 10px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .power-led {
+      width: 12px; height: 12px;
+      background-color: #ff0000;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #ff0000, inset 0 0 5px #fff;
+    }
+    
+    /* --- APP UI (Inside the game-content) --- */
     h1 { 
-      margin-top: 15px; 
+      margin-top: 0; 
       text-align: center; 
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       line-height: 1.5;
       color: var(--accent);
       text-shadow: var(--glow-accent);
-      position: relative;
-      z-index: 10;
     }
     
     .screen { 
       display: none; 
       width: 100%; 
-      max-width: 450px; 
       flex-direction: column; 
-      gap: 20px; 
-      position: relative;
-      z-index: 10;
+      gap: 15px; 
     }
     
     .screen.active { 
@@ -113,25 +175,23 @@
       color: var(--text); 
       border: 3px solid var(--text); 
       padding: 15px; 
-      font-size: 0.8rem; 
+      font-size: 0.7rem; 
       cursor: pointer; 
       text-align: center; 
       transition: 0.2s; 
       line-height: 1.4;
       text-shadow: var(--glow-text);
-      box-shadow: 0 0 5px rgba(255,255,255,0.3);
     }
     
     .btn:active { 
-      transform: translateY(4px); 
-      box-shadow: none;
+      transform: translateY(2px); 
     }
     
     .btn:hover {
       background-color: var(--text);
       color: var(--bg);
       text-shadow: none;
-      box-shadow: 0 0 15px rgba(255,255,255,0.6);
+      box-shadow: 0 0 10px rgba(255,255,255,0.4);
     }
     
     .btn-spin { 
@@ -151,12 +211,12 @@
     .current-item-box { 
       background-color: var(--bg); 
       color: var(--secondary); 
-      padding: 25px 15px; 
+      padding: 20px 10px; 
       border: 3px dashed var(--secondary);
       text-align: center; 
-      font-size: 1.2rem; 
+      font-size: 1.1rem; 
       line-height: 1.5;
-      margin-bottom: 20px; 
+      margin-bottom: 10px; 
       text-shadow: var(--glow-secondary);
       box-shadow: 0 0 10px rgba(255, 0, 85, 0.3), inset 0 0 10px rgba(255, 0, 85, 0.3);
     }
@@ -165,8 +225,8 @@
       display: flex; 
       align-items: center; 
       background-color: rgba(17, 17, 17, 0.7); 
-      padding: 15px; 
-      margin-bottom: 15px; 
+      padding: 12px; 
+      margin-bottom: 10px; 
       cursor: pointer; 
       border: 3px solid #333; 
       transition: 0.2s;
@@ -181,18 +241,17 @@
       border-color: var(--text); 
       background-color: rgba(34, 34, 34, 0.8);
       cursor: default; 
-      box-shadow: 0 0 5px rgba(255,255,255,0.2);
     }
     
     .slot-number { 
-      font-size: 1.2rem; 
-      width: 40px; 
+      font-size: 1.1rem; 
+      width: 35px; 
       color: var(--accent); 
       text-shadow: var(--glow-accent);
     }
     
     .slot-content { 
-      font-size: 0.8rem; 
+      font-size: 0.7rem; 
       flex-grow: 1; 
       text-align: center; 
       line-height: 1.4;
@@ -209,32 +268,52 @@
 </head>
 <body>
 
-  <div class="crt-overlay"></div>
-  <div class="crt-vignette"></div>
-  <div class="scan-bar"></div>
+  <div class="cabinet">
+    
+    <div class="crt-monitor">
+      
+      <div class="crt-overlay"></div>
+      <div class="crt-vignette"></div>
+      <div class="scan-bar"></div>
 
-  <h1>RESPAWN RANKER</h1>
+      <div class="game-content">
+        <h1>RESPAWN RANKER</h1>
 
-  <div id="loading-screen" class="screen active">
-    <h3 class="blink" style="text-align: center; font-size: 1rem;">LOADING DATA...</h3>
-  </div>
+        <div id="loading-screen" class="screen active">
+          <h3 class="blink" style="text-align: center; font-size: 0.9rem; margin-top: 40px;">LOADING DATA...</h3>
+        </div>
 
-  <div id="menu-screen" class="screen">
-    <h3 style="text-align: center; color: #aaaaaa; font-size: 0.9rem;">SELECT DOMAIN</h3>
-    <div id="domain-buttons" style="display: flex; flex-direction: column; gap: 15px;"></div>
-    <div style="height: 10px;"></div>
-    <button class="btn btn-spin" id="spin-btn" onclick="spinWheel()">RNG ALL DATA</button>
-  </div>
+        <div id="menu-screen" class="screen">
+          <h3 style="text-align: center; color: #aaaaaa; font-size: 0.8rem;">SELECT DOMAIN</h3>
+          <div id="domain-buttons" style="display: flex; flex-direction: column; gap: 15px;"></div>
+          <div style="height: 5px;"></div>
+          <button class="btn btn-spin" id="spin-btn" onclick="spinWheel()">RNG ALL DATA</button>
+        </div>
 
-  <div id="sub-menu-screen" class="screen">
-    <h3 style="text-align: center; color: #aaaaaa; font-size: 0.9rem;" id="sub-menu-title">SELECT CATEGORY</h3>
-    <div id="sub-menu-buttons" style="display: flex; flex-direction: column; gap: 15px;"></div>
-  </div>
+        <div id="sub-menu-screen" class="screen">
+          <h3 style="text-align: center; color: #aaaaaa; font-size: 0.8rem;" id="sub-menu-title">SELECT CATEGORY</h3>
+          <div id="sub-menu-buttons" style="display: flex; flex-direction: column; gap: 15px;"></div>
+        </div>
 
-  <div id="game-screen" class="screen">
-    <div style="text-align:center; color: #aaaaaa; font-size: 0.7rem;" id="category-label">CATEGORY</div>
-    <div class="current-item-box" id="current-item">LOADING...</div>
-    <div id="slots-container"></div>
+        <div id="game-screen" class="screen">
+          <div style="text-align:center; color: #aaaaaa; font-size: 0.6rem; margin-bottom: 5px;" id="category-label">CATEGORY</div>
+          <div class="current-item-box" id="current-item">LOADING...</div>
+          <div id="slots-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cabinet-details">
+      <div class="speaker-grille">
+        <div class="speaker-hole"></div>
+        <div class="speaker-hole"></div>
+        <div class="speaker-hole"></div>
+        <div class="speaker-hole"></div>
+        <div class="speaker-hole"></div>
+      </div>
+      <div class="power-led"></div>
+    </div>
+
   </div>
 
   <script>
@@ -259,7 +338,7 @@
         buildMainMenu();
         switchScreen('menu-screen');
       } catch (error) {
-        document.getElementById('loading-screen').innerHTML = `<h3 style="color:red; text-align:center; font-size: 0.8rem; text-shadow: 0 0 10px red;">ERROR: DB NOT FOUND</h3>`;
+        document.getElementById('loading-screen').innerHTML = `<h3 style="color:red; text-align:center; font-size: 0.8rem; text-shadow: 0 0 10px red; margin-top: 40px;">ERROR: DB NOT FOUND</h3>`;
       }
     }
 
@@ -352,7 +431,7 @@
 
         let score = Math.round(100 - ((totalOffset / 12) * 100));
 
-        currentItemBox.innerHTML = `META SYNERGY:<br><span style="font-size:2rem; color: #fff; text-shadow: 0 0 10px #fff;">${score}%</span>`;
+        currentItemBox.innerHTML = `META SYNERGY:<br><span style="font-size:1.8rem; color: #fff; text-shadow: 0 0 10px #fff;">${score}%</span>`;
         currentItemBox.style.color = "var(--accent)";
         currentItemBox.style.borderColor = "var(--accent)";
         currentItemBox.style.boxShadow = "var(--glow-box)";
@@ -362,7 +441,10 @@
           container.innerHTML += `<div class="slot filled"><div class="slot-number">${i + 1}</div><div class="slot-content">${item}</div></div>`;
         });
         
-        container.innerHTML += `<button class="btn btn-spin" style="width:100%; margin-top:20px;" onclick="resetGame()">INSERT COIN</button>`;
+        container.innerHTML += `<button class="btn btn-spin" style="width:100%; margin-top:15px;" onclick="resetGame()">INSERT COIN</button>`;
+        
+        // Scroll to bottom so they see the button
+        document.querySelector('.game-content').scrollTop = document.querySelector('.game-content').scrollHeight;
         return;
       }
       
