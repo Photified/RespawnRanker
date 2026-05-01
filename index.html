@@ -199,6 +199,12 @@
         <p>3. RANK IT IN A SLOT (1-5).</p>
         <p>4. NO CHANGING ONCE PLACED!</p>
         <p>5. GET YOUR META SYNERGY SCORE.</p>
+        
+        <div style="height: 5px; border-bottom: 2px dashed #333; width: 100%;"></div>
+        
+        <h2 style="font-size: 0.8rem; color: #00e5ff; text-shadow: 0 0 5px #00e5ff; margin-top: 5px;">META SCORING</h2>
+        <p style="color: #999;">SCORES ARE GRADED AGAINST CANONICAL LORE POWER & REAL-WORLD LEGACY RATINGS. MATCH THE PERFECT TIER LIST = 100%.</p>
+        
         <div style="height: 10px;"></div>
         <button id="install-btn" class="btn" style="display: none; border-color: var(--accent); color: var(--accent);" onclick="installApp()">INSTALL APP 💾</button>
         <button id="sound-toggle" class="btn btn-spin" onclick="toggleSound()">SOUND: ON 🔊</button>
@@ -541,7 +547,7 @@
         });
 
         let finalPercent = Math.round(100 - ((totalOffset / 12) * 100));
-        saveStats(finalPercent); // Saves data to local storage
+        saveStats(finalPercent); 
 
         currentItemBox.innerHTML = `META SYNERGY:<br><span style="font-size:1.8rem; color: #fff; text-shadow: 0 0 10px #fff;">${finalPercent}%</span>`;
         currentItemBox.style.color = "var(--accent)";
