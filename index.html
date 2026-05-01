@@ -22,24 +22,28 @@
     
     * { box-sizing: border-box; font-family: 'Press Start 2P', cursive; }
     
-    body { 
+    /* Fixed dynamically calculated heights so nothing overflows on mobile */
+    html, body {
+      height: 100dvh; /* Dynamic viewport height to dodge the URL bar */
+      height: 100vh;  /* Fallback */
+      margin: 0; padding: 0; 
       background-color: #0a0a0c; 
       background-image: radial-gradient(circle at center, #111 0%, #000 100%);
-      margin: 0; padding: 0; 
       display: flex; justify-content: center; align-items: center;
-      min-height: 100vh; text-transform: uppercase; overflow: hidden; 
+      text-transform: uppercase; overflow: hidden; 
     }
 
     .cabinet {
       background-color: var(--cabinet);
-      width: 100%; max-width: 100%; height: 100vh; max-height: 100vh;
-      padding: 20px 20px 30px 20px;
+      width: 100%; max-width: 100%; height: 100%; max-height: 100%;
+      padding: 15px 15px 25px 15px;
       box-shadow: inset 0 3px 5px rgba(255,255,255,0.1), inset 0 -5px 15px rgba(0,0,0,0.8);
       display: flex; flex-direction: column; align-items: center; position: relative;
     }
 
     .crt-monitor {
-      width: 100%; height: 100%; background-color: #000;
+      width: 100%; flex: 1; min-height: 0; /* Lets it shrink correctly */
+      background-color: #000;
       border-radius: 30px 30px 30px 30px / 20px 20px 20px 20px; 
       border: 12px solid #050505; 
       box-shadow: inset 0 0 30px rgba(0,0,0,1), 0 0 15px rgba(57,255,20,0.15); 
@@ -73,7 +77,7 @@
     
     .cabinet-details {
       display: flex; justify-content: space-between; align-items: center;
-      width: 90%; max-width: 800px; margin-top: 20px;
+      width: 90%; max-width: 800px; margin-top: 15px; /* Tighter gap */
     }
 
     .speaker-grille { display: flex; gap: 4px; }
@@ -119,8 +123,8 @@
     .subtitle {
       text-align: center; color: var(--secondary); font-size: 0.55rem; 
       text-shadow: var(--glow-secondary); letter-spacing: 1px; 
-      margin-top: 20px; 
-      margin-bottom: 25px;
+      margin-top: 15px; 
+      margin-bottom: 20px;
       line-height: 1.4;
     }
     
@@ -182,6 +186,16 @@
 
     .blink { animation: blinker 1s linear infinite; }
     @keyframes blinker { 50% { opacity: 0; } }
+
+    /* Space-saver adjustments for tiny screens */
+    @media (max-width: 600px) {
+      .game-header-logo { width: 75%; margin-bottom: 5px; }
+      .subtitle { font-size: 0.5rem; margin-top: 10px; margin-bottom: 15px; }
+      .btn { padding: 12px; font-size: 0.65rem; }
+      .cabinet { padding: 10px 10px 15px 10px; }
+      .game-content { padding: 15px; }
+      #category-buttons { gap: 10px !important; }
+    }
   </style>
 </head>
 <body>
@@ -376,7 +390,6 @@
 
     function getDailySeed() {
         let d = new Date();
-        // Strictly formats the current local day to generate a hash
         let dateStr = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; 
         let hash = 0;
         for (let i = 0; i < dateStr.length; i++) {
@@ -435,11 +448,9 @@
         let rng = mulberry32(getDailySeed());
         const allCategories = Object.keys(gameData["Video Games"]);
         
-        // Pick a seeded category
         const catIndex = Math.floor(rng() * allCategories.length);
         const category = allCategories[catIndex];
         
-        // Pick seeded items
         let dataPool = [...gameData["Video Games"][category]];
         for (let i = dataPool.length - 1; i > 0; i--) {
             const j = Math.floor(rng() * (i + 1));

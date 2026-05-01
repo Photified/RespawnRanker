@@ -95,22 +95,6 @@
       {"name": "Raccoon City Police Dept (Resident Evil 2)", "score": 94}, {"name": "Shadow Moses Island (Metal Gear Solid)", "score": 97}, {"name": "Spencer Mansion (Resident Evil)", "score": 95},
       {"name": "City 17 (Half-Life 2)", "score": 96}, {"name": "Rapture (BioShock)", "score": 99}, {"name": "Ishimura (Dead Space)", "score": 93}, {"name": "Midgar (Final Fantasy VII)", "score": 98},
       {"name": "Anor Londo (Dark Souls)", "score": 96}, {"name": "Green Hill Zone (Sonic the Hedgehog)", "score": 97}, {"name": "King's Row (Overwatch)", "score": 90}, {"name": "Ascent (Valorant)", "score": 88}
-    ],
-    "Greatest Campaigns": [
-      {"name": "The Last of Us (Part I)", "score": 98}, {"name": "Red Dead Redemption 2", "score": 99}, {"name": "Halo: Combat Evolved", "score": 96}, 
-      {"name": "Mass Effect 2", "score": 97}, {"name": "BioShock", "score": 95}, {"name": "The Witcher 3: Wild Hunt", "score": 98}, 
-      {"name": "Portal 2", "score": 97}, {"name": "Half-Life 2", "score": 96}, {"name": "God of War (2018)", "score": 98}, 
-      {"name": "Chrono Trigger", "score": 97}, {"name": "Zelda: Ocarina of Time", "score": 99}, {"name": "Super Mario Galaxy", "score": 95},
-      {"name": "Metal Gear Solid 3: Snake Eater", "score": 97}, {"name": "Final Fantasy VII", "score": 96}, {"name": "Grand Theft Auto: San Andreas", "score": 95},
-      {"name": "Batman: Arkham City", "score": 94}, {"name": "Bloodborne", "score": 96}, {"name": "Hollow Knight", "score": 94}, {"name": "Fallout: New Vegas", "score": 95}, {"name": "Cyberpunk 2077", "score": 89}
-    ],
-    "Best Boss Fights": [
-      {"name": "Ornstein & Smough (Dark Souls)", "score": 98}, {"name": "Sword Saint Isshin (Sekiro)", "score": 99}, {"name": "Sephiroth (Final Fantasy VII)", "score": 97},
-      {"name": "The Boss (Metal Gear Solid 3)", "score": 96}, {"name": "Mr. Freeze (Batman: Arkham City)", "score": 93}, {"name": "GLaDOS (Portal)", "score": 94},
-      {"name": "Psycho Mantis (Metal Gear Solid)", "score": 95}, {"name": "Malenia, Blade of Miquella (Elden Ring)", "score": 98}, {"name": "Slave Knight Gael (Dark Souls III)", "score": 97},
-      {"name": "Vergil (Devil May Cry 3)", "score": 96}, {"name": "Senator Armstrong (Metal Gear Rising)", "score": 94}, {"name": "Bowser (Super Mario 64)", "score": 90},
-      {"name": "Ganondorf (Zelda: Ocarina of Time)", "score": 95}, {"name": "Ludwig, the Holy Blade (Bloodborne)", "score": 96}, {"name": "Sigrun (God of War)", "score": 95},
-      {"name": "Poseidon (God of War III)", "score": 92}, {"name": "Nemesis (Resident Evil 3)", "score": 94}, {"name": "Gehrman, the First Hunter (Bloodborne)", "score": 95}
     ]
   }
 }
