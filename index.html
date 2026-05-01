@@ -99,7 +99,7 @@
     
     .game-header-logo {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       position: relative;
       z-index: 1005; 
       width: 60%; 
@@ -114,6 +114,12 @@
       display: block;
       margin: 0 auto;
       filter: drop-shadow(0 0 5px var(--accent));
+    }
+
+    .subtitle {
+      text-align: center; color: var(--secondary); font-size: 0.55rem; 
+      text-shadow: var(--glow-secondary); letter-spacing: 1px; margin-bottom: 20px;
+      line-height: 1.4;
     }
     
     .screen { 
@@ -198,14 +204,15 @@
         </div>
 
         <div id="home-screen" class="screen">
-          <h3 style="text-align: center; color: #aaaaaa; font-size: 0.8rem;" id="sub-menu-title">SELECT CATEGORY</h3>
+          <div class="subtitle">BLINDLY RANK YOUR TOP 5 AND GET YOUR META SYNERGY SCORE</div>
+          <h3 style="text-align: center; color: #aaaaaa; font-size: 0.8rem; margin-top: 0;" id="sub-menu-title">SELECT CATEGORY</h3>
           <div id="category-buttons" style="display: flex; flex-direction: column; gap: 15px;"></div>
           <div style="height: 5px;"></div>
           <button class="btn btn-spin" id="spin-btn" onclick="spinWheel()">RNG CATEGORY</button>
         </div>
 
         <div id="game-screen" class="screen">
-          <div style="text-align:center; color: #aaaaaa; font-size: 0.6rem; margin-bottom: 5px;" id="category-label">CATEGORY</div>
+          <div style="text-align:center; color: #aaaaaa; font-size: 0.6rem; margin-top: 15px; margin-bottom: 15px;" id="category-label">CATEGORY</div>
           <div class="current-item-box" id="current-item">LOADING...</div>
           <div id="slots-container"></div>
         </div>
