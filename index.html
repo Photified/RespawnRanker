@@ -22,10 +22,11 @@
     
     * { box-sizing: border-box; font-family: 'Press Start 2P', cursive; }
     
-    /* Fixed dynamically calculated heights so nothing overflows on mobile */
+    /* Bulletproof Mobile Viewport Lock */
     html, body {
-      height: 100dvh; /* Dynamic viewport height to dodge the URL bar */
-      height: 100vh;  /* Fallback */
+      position: fixed; 
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%; height: 100%;
       margin: 0; padding: 0; 
       background-color: #0a0a0c; 
       background-image: radial-gradient(circle at center, #111 0%, #000 100%);
@@ -42,7 +43,7 @@
     }
 
     .crt-monitor {
-      width: 100%; flex: 1; min-height: 0; /* Lets it shrink correctly */
+      width: 100%; flex: 1; min-height: 0; 
       background-color: #000;
       border-radius: 30px 30px 30px 30px / 20px 20px 20px 20px; 
       border: 12px solid #050505; 
@@ -77,7 +78,8 @@
     
     .cabinet-details {
       display: flex; justify-content: space-between; align-items: center;
-      width: 90%; max-width: 800px; margin-top: 15px; /* Tighter gap */
+      width: 90%; max-width: 800px; margin-top: 15px;
+      flex-shrink: 0; /* Prevents the CRT monitor from squashing this section */
     }
 
     .speaker-grille { display: flex; gap: 4px; }
@@ -179,7 +181,6 @@
     .modal h2 { color: var(--accent); font-size: 1rem; margin-top: 0; text-shadow: var(--glow-accent); }
     .modal p { font-size: 0.6rem; line-height: 1.8; color: #ccc; text-align: left; margin: 0;}
 
-    /* New Stats Menu Blocks */
     .stat-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #333; padding: 15px 0; }
     .stat-label { font-size: 0.7rem; color: #aaa; }
     .stat-value { font-size: 1rem; color: var(--accent); text-shadow: var(--glow-accent); }
@@ -192,7 +193,7 @@
       .game-header-logo { width: 75%; margin-bottom: 5px; }
       .subtitle { font-size: 0.5rem; margin-top: 10px; margin-bottom: 15px; }
       .btn { padding: 12px; font-size: 0.65rem; }
-      .cabinet { padding: 10px 10px 15px 10px; }
+      .cabinet { padding: 10px 10px 25px 10px; } /* Extra bottom padding for system gesture bars */
       .game-content { padding: 15px; }
       #category-buttons { gap: 10px !important; }
     }
@@ -220,8 +221,8 @@
         <p style="color: #999;">SCORES ARE GRADED AGAINST CANONICAL LORE POWER & REAL-WORLD LEGACY RATINGS. MATCH THE PERFECT TIER LIST = 100%.</p>
         
         <div style="height: 10px;"></div>
-        <button id="install-btn" class="btn" style="display: none; border-color: var(--accent); color: var(--accent);" onclick="installApp()">INSTALL APP 💾</button>
-        <button id="sound-toggle" class="btn btn-spin" onclick="toggleSound()">SOUND: ON 🔊</button>
+        <button id="install-btn" class="btn" style="display: none; border-color: var(--accent); color: var(--accent);" onclick="installApp()">INSTALL APP</button>
+        <button id="sound-toggle" class="btn btn-spin" onclick="toggleSound()">SOUND: ON</button>
         <button class="btn" style="border-color: var(--secondary); color: var(--secondary);" onclick="toggleModal()">CLOSE</button>
       </div>
 
@@ -238,7 +239,7 @@
         <div id="home-screen" class="screen">
           <div class="subtitle">BLINDLY RANK YOUR TOP 5 AND GET YOUR META SYNERGY SCORE</div>
           
-          <button class="btn btn-daily" id="daily-btn" onclick="startDaily()">DAILY CHALLENGE 📅</button>
+          <button class="btn btn-daily" id="daily-btn" onclick="startDaily()">DAILY CHALLENGE</button>
           
           <h3 style="text-align: center; color: #aaaaaa; font-size: 0.8rem; margin-top: 10px;" id="sub-menu-title">SELECT CATEGORY</h3>
           <div id="category-buttons" style="display: flex; flex-direction: column; gap: 15px;"></div>
