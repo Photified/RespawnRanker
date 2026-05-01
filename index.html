@@ -8,11 +8,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #000000;
-      --text: #ffffff;
-      --accent: #39ff14; /* Classic CRT Neon Green */
-      --secondary: #ff0055; /* Arcade Pink/Red for active items */
+      --bg: #050505; /* Slightly off-black for the monitor base */
+      --text: #e0e0e0;
+      --accent: #39ff14; 
+      --secondary: #ff0055; 
       --card: #111111;
+      
+      /* Glow Presets */
+      --glow-accent: 0 0 5px var(--accent), 0 0 15px var(--accent);
+      --glow-secondary: 0 0 5px var(--secondary), 0 0 15px var(--secondary);
+      --glow-text: 0 0 4px rgba(224, 224, 224, 0.6);
+      --glow-box: 0 0 8px var(--accent), inset 0 0 8px var(--accent);
     }
     
     * { 
@@ -30,15 +36,62 @@
       align-items: center; 
       min-height: 100vh; 
       text-transform: uppercase;
+      text-shadow: var(--glow-text);
+      overflow-x: hidden;
+    }
+
+    /* --- CRT MONITOR OVERLAYS --- */
+    .crt-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .crt-vignette {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .scan-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(57, 255, 20, 0.15);
+      position: fixed;
+      top: 0;
+      left: 0;
+      animation: scanline 8s linear infinite;
+      pointer-events: none;
+      z-index: 1001;
+      box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-100vh); }
+      100% { transform: translateY(100vh); }
     }
     
+    /* --- APP UI --- */
     h1 { 
-      margin-top: 10px; 
+      margin-top: 15px; 
       text-align: center; 
       font-size: 1.5rem;
       line-height: 1.5;
       color: var(--accent);
-      text-shadow: 2px 2px 0px #005500;
+      text-shadow: var(--glow-accent);
+      position: relative;
+      z-index: 10;
     }
     
     .screen { 
@@ -47,6 +100,8 @@
       max-width: 450px; 
       flex-direction: column; 
       gap: 20px; 
+      position: relative;
+      z-index: 10;
     }
     
     .screen.active { 
@@ -56,13 +111,15 @@
     .btn { 
       background-color: var(--bg); 
       color: var(--text); 
-      border: 4px solid var(--text); 
+      border: 3px solid var(--text); 
       padding: 15px; 
       font-size: 0.8rem; 
       cursor: pointer; 
       text-align: center; 
-      transition: 0.1s; 
+      transition: 0.2s; 
       line-height: 1.4;
+      text-shadow: var(--glow-text);
+      box-shadow: 0 0 5px rgba(255,255,255,0.3);
     }
     
     .btn:active { 
@@ -73,53 +130,65 @@
     .btn:hover {
       background-color: var(--text);
       color: var(--bg);
+      text-shadow: none;
+      box-shadow: 0 0 15px rgba(255,255,255,0.6);
     }
     
     .btn-spin { 
       border-color: var(--accent); 
       color: var(--accent); 
+      text-shadow: var(--glow-accent);
+      box-shadow: var(--glow-box);
     }
     
     .btn-spin:hover {
       background-color: var(--accent);
       color: var(--bg);
+      text-shadow: none;
+      box-shadow: 0 0 20px var(--accent);
     }
     
     .current-item-box { 
       background-color: var(--bg); 
       color: var(--secondary); 
       padding: 25px 15px; 
-      border: 4px dashed var(--secondary);
+      border: 3px dashed var(--secondary);
       text-align: center; 
       font-size: 1.2rem; 
       line-height: 1.5;
       margin-bottom: 20px; 
+      text-shadow: var(--glow-secondary);
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.3), inset 0 0 10px rgba(255, 0, 85, 0.3);
     }
     
     .slot { 
       display: flex; 
       align-items: center; 
-      background-color: var(--card); 
+      background-color: rgba(17, 17, 17, 0.7); 
       padding: 15px; 
       margin-bottom: 15px; 
       cursor: pointer; 
-      border: 4px solid #333333; 
+      border: 3px solid #333; 
+      transition: 0.2s;
     }
     
     .slot:hover:not(.filled) { 
       border-color: var(--accent); 
+      box-shadow: var(--glow-box);
     }
     
     .slot.filled { 
       border-color: var(--text); 
-      background-color: #222222;
+      background-color: rgba(34, 34, 34, 0.8);
       cursor: default; 
+      box-shadow: 0 0 5px rgba(255,255,255,0.2);
     }
     
     .slot-number { 
       font-size: 1.2rem; 
       width: 40px; 
       color: var(--accent); 
+      text-shadow: var(--glow-accent);
     }
     
     .slot-content { 
@@ -139,6 +208,10 @@
   </style>
 </head>
 <body>
+
+  <div class="crt-overlay"></div>
+  <div class="crt-vignette"></div>
+  <div class="scan-bar"></div>
 
   <h1>RESPAWN RANKER</h1>
 
@@ -170,7 +243,6 @@
     let currentItemIndex = 0;
     let rankedSlots = [null, null, null, null, null];
 
-    // --- HASH FUNCTION FOR HIDDEN META SCORE ---
     function getMetaScore(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -187,7 +259,7 @@
         buildMainMenu();
         switchScreen('menu-screen');
       } catch (error) {
-        document.getElementById('loading-screen').innerHTML = `<h3 style="color:red; text-align:center; font-size: 0.8rem;">ERROR: DB NOT FOUND</h3>`;
+        document.getElementById('loading-screen').innerHTML = `<h3 style="color:red; text-align:center; font-size: 0.8rem; text-shadow: 0 0 10px red;">ERROR: DB NOT FOUND</h3>`;
       }
     }
 
@@ -221,6 +293,7 @@
       backBtn.className = 'btn';
       backBtn.style.borderColor = '#555555';
       backBtn.style.color = '#555555';
+      backBtn.style.boxShadow = 'none';
       backBtn.innerText = 'RETURN';
       backBtn.onclick = () => switchScreen('menu-screen');
       container.appendChild(backBtn);
@@ -266,9 +339,9 @@
     function updateGameUI() {
       const container = document.getElementById('slots-container');
       container.innerHTML = '';
+      const currentItemBox = document.getElementById('current-item');
       
       if (currentItemIndex >= 5) {
-        // --- CALCULATE SCORE ---
         let perfectOrder = [...rankedSlots].sort((a, b) => getMetaScore(b) - getMetaScore(a));
         let totalOffset = 0;
         
@@ -279,9 +352,11 @@
 
         let score = Math.round(100 - ((totalOffset / 12) * 100));
 
-        document.getElementById('current-item').innerHTML = `META SYNERGY:<br><span style="font-size:2rem; color: #fff;">${score}%</span>`;
-        document.getElementById('current-item').style.color = "var(--accent)";
-        document.getElementById('current-item').style.borderColor = "var(--accent)";
+        currentItemBox.innerHTML = `META SYNERGY:<br><span style="font-size:2rem; color: #fff; text-shadow: 0 0 10px #fff;">${score}%</span>`;
+        currentItemBox.style.color = "var(--accent)";
+        currentItemBox.style.borderColor = "var(--accent)";
+        currentItemBox.style.boxShadow = "var(--glow-box)";
+        currentItemBox.style.textShadow = "var(--glow-accent)";
         
         rankedSlots.forEach((item, i) => {
           container.innerHTML += `<div class="slot filled"><div class="slot-number">${i + 1}</div><div class="slot-content">${item}</div></div>`;
@@ -291,9 +366,11 @@
         return;
       }
       
-      document.getElementById('current-item').innerText = activeItems[currentItemIndex];
-      document.getElementById('current-item').style.color = "var(--secondary)";
-      document.getElementById('current-item').style.borderColor = "var(--secondary)";
+      currentItemBox.innerText = activeItems[currentItemIndex];
+      currentItemBox.style.color = "var(--secondary)";
+      currentItemBox.style.borderColor = "var(--secondary)";
+      currentItemBox.style.boxShadow = "0 0 10px rgba(255, 0, 85, 0.3), inset 0 0 10px rgba(255, 0, 85, 0.3)";
+      currentItemBox.style.textShadow = "var(--glow-secondary)";
       
       for (let i = 0; i < 5; i++) {
         const slotDiv = document.createElement('div');
@@ -319,7 +396,6 @@
       document.getElementById(screenId).classList.add('active');
     }
 
-    // Register Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(() => console.log('SW Registered'));
     }
