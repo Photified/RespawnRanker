@@ -1,7 +1,8 @@
-const CACHE_NAME = 'blind-ranker-v1';
+const CACHE_NAME = 'respawn-ranker-v1';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/database.json',
   '/manifest.json'
 ];
 
