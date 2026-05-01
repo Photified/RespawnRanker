@@ -14,7 +14,6 @@
       --secondary: #ff0055; 
       --cabinet: #1a1a1a;
       
-      /* Glow Presets */
       --glow-accent: 0 0 5px var(--accent), 0 0 15px var(--accent);
       --glow-secondary: 0 0 5px var(--secondary), 0 0 15px var(--secondary);
       --glow-text: 0 0 4px rgba(224, 224, 224, 0.6);
@@ -83,14 +82,31 @@
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.05);
     }
 
+    .cabinet-controls { display: flex; align-items: center; gap: 15px; }
+
     .power-led {
       width: 12px; height: 12px; background-color: #ff0000; border-radius: 50%;
       box-shadow: 0 0 10px #ff0000, inset 0 0 5px #fff;
     }
+
+    /* Hardware "?" Button */
+    .hardware-btn {
+      background: #222; color: #888; border: 2px solid #111; border-radius: 50%;
+      width: 32px; height: 32px; font-family: 'Press Start 2P'; font-size: 0.8rem;
+      cursor: pointer; box-shadow: inset 0 2px 5px rgba(255,255,255,0.2), 0 2px 5px rgba(0,0,0,0.8);
+      display: flex; justify-content: center; align-items: center;
+    }
+    .hardware-btn:active { box-shadow: inset 0 2px 10px rgba(0,0,0,0.8); color: var(--accent); }
     
     h1 { 
       margin-top: 0; text-align: center; font-size: 1.5rem; line-height: 1.5; color: #ffffff;
       text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 30px var(--accent); 
+      position: relative; z-index: 1005; margin-bottom: 5px;
+    }
+
+    .subtitle {
+      text-align: center; color: var(--secondary); font-size: 0.55rem; 
+      text-shadow: var(--glow-secondary); letter-spacing: 1px; margin-bottom: 20px;
       position: relative; z-index: 1005;
     }
     
@@ -131,6 +147,17 @@
     .slot-number { font-size: 1.1rem; width: 35px; color: var(--accent); text-shadow: var(--glow-accent); }
     .slot-content { font-size: 0.7rem; flex-grow: 1; text-align: center; line-height: 1.4; }
 
+    /* Settings/Help Modal OSD */
+    .modal {
+      display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(10, 10, 10, 0.95); border: 4px solid var(--accent); padding: 25px;
+      z-index: 2000; width: 85%; max-width: 400px; text-align: center; 
+      box-shadow: 0 0 30px #000, 0 0 20px var(--accent);
+    }
+    .modal.active { display: flex; flex-direction: column; gap: 15px; }
+    .modal h2 { color: var(--accent); font-size: 1rem; margin-top: 0; text-shadow: var(--glow-accent); }
+    .modal p { font-size: 0.6rem; line-height: 1.8; color: #ccc; text-align: left; margin: 0;}
+
     .blink { animation: blinker 1s linear infinite; }
     @keyframes blinker { 50% { opacity: 0; } }
   </style>
@@ -143,8 +170,21 @@
       <div class="crt-vignette"></div>
       <div class="scan-bar"></div>
 
+      <div id="help-modal" class="modal">
+        <h2>HOW TO PLAY</h2>
+        <p>1. SELECT CATEGORY.</p>
+        <p>2. A RANDOM ITEM WILL APPEAR.</p>
+        <p>3. RANK IT IN A SLOT (1-5).</p>
+        <p>4. NO CHANGING ONCE PLACED!</p>
+        <p>5. GET YOUR META SCORE AT THE END.</p>
+        <div style="height: 10px;"></div>
+        <button id="sound-toggle" class="btn btn-spin" onclick="toggleSound()">SOUND: ON 🔊</button>
+        <button class="btn" style="border-color: var(--secondary); color: var(--secondary);" onclick="toggleModal()">CLOSE</button>
+      </div>
+
       <div class="game-content">
         <h1>RESPAWN RANKER</h1>
+        <div class="subtitle">RANK YOUR TOP 5 AND GET YOUR META SCORE</div>
 
         <div id="loading-screen" class="screen active">
           <h3 class="blink" style="text-align: center; font-size: 0.9rem; margin-top: 40px;">LOADING DATA...</h3>
@@ -169,7 +209,10 @@
       <div class="speaker-grille">
         <div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div>
       </div>
-      <div class="power-led"></div>
+      <div class="cabinet-controls">
+        <button class="hardware-btn" onclick="toggleModal()">?</button>
+        <div class="power-led"></div>
+      </div>
     </div>
   </div>
 
@@ -179,6 +222,67 @@
     let currentItemIndex = 0;
     let rankedSlots = [null, null, null, null, null];
 
+    // --- 8-BIT AUDIO SYNTHESIZER ---
+    let soundOn = true;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSound(type) {
+      if (!soundOn) return;
+      initAudio();
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'square'; // Classic NES-style waveform
+      
+      const now = audioCtx.currentTime;
+      
+      if (type === 'tick') {
+        osc.frequency.setValueAtTime(800, now);
+        gain.gain.setValueAtTime(0.02, now); // Very quiet
+        osc.start(now);
+        osc.stop(now + 0.03); // Very short
+      } else if (type === 'bloop') {
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.1); // Pitch drop
+        gain.gain.setValueAtTime(0.05, now);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      } else if (type === 'win') {
+        osc.frequency.setValueAtTime(440, now); // A4
+        osc.frequency.setValueAtTime(554.37, now + 0.1); // C#5
+        osc.frequency.setValueAtTime(659.25, now + 0.2); // E5
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.6); // Fade out
+        osc.start(now);
+        osc.stop(now + 0.6);
+      }
+    }
+
+    function toggleSound() {
+      soundOn = !soundOn;
+      document.getElementById('sound-toggle').innerText = soundOn ? "SOUND: ON 🔊" : "SOUND: OFF 🔇";
+      if (soundOn) {
+        initAudio();
+        playSound('bloop');
+      }
+    }
+
+    function toggleModal() {
+      initAudio(); // Initialize audio context on first user click
+      const modal = document.getElementById('help-modal');
+      modal.classList.toggle('active');
+    }
+
+    // --- GAME LOGIC ---
     function getMetaScore(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -202,39 +306,41 @@
     function buildMainMenu() {
       const container = document.getElementById('category-buttons');
       container.innerHTML = ''; 
-
-      // Directly target the Video Games object to skip the domain selection step
       const categories = gameData["Video Games"];
 
       for (const category in categories) {
         const btn = document.createElement('button');
         btn.className = 'btn';
         btn.innerText = category;
-        btn.onclick = () => startGame(category);
+        btn.onclick = () => {
+          playSound('bloop');
+          startGame(category);
+        };
         container.appendChild(btn);
       }
     }
 
     function spinWheel() {
       const btn = document.getElementById('spin-btn');
-      
-      // Get array of all category names
       const allCategories = Object.keys(gameData["Video Games"]);
 
       let spins = 0;
       const interval = setInterval(() => {
+        playSound('tick');
         const randomCat = allCategories[spins % allCategories.length];
         btn.innerText = `...${randomCat.substring(0, 10)}...`;
         spins++;
         if (spins > 15) {
           clearInterval(interval);
+          playSound('bloop');
           const finalCat = allCategories[Math.floor(Math.random() * allCategories.length)];
           startGame(finalCat);
         }
-      }, 100);
+      }, 80);
     }
 
     function startGame(category) {
+      initAudio();
       let dataPool = [...gameData["Video Games"][category]];
       if (dataPool.length < 5) return;
 
@@ -253,6 +359,7 @@
       const currentItemBox = document.getElementById('current-item');
       
       if (currentItemIndex >= 5) {
+        playSound('win');
         let perfectOrder = [...rankedSlots].sort((a, b) => getMetaScore(b) - getMetaScore(a));
         let totalOffset = 0;
         
@@ -291,6 +398,7 @@
         slotDiv.innerHTML = `<div class="slot-number">${i + 1}</div><div class="slot-content">${rankedSlots[i] ? rankedSlots[i] : 'EMPTY'}</div>`;
         
         if (!rankedSlots[i]) slotDiv.onclick = () => {
+          playSound('bloop');
           rankedSlots[i] = activeItems[currentItemIndex];
           currentItemIndex++;
           updateGameUI();
@@ -300,6 +408,7 @@
     }
 
     function resetGame() {
+      playSound('bloop');
       document.getElementById('spin-btn').innerText = "RNG CATEGORY";
       switchScreen('home-screen');
     }
