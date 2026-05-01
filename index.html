@@ -142,6 +142,10 @@
     
     .btn-spin { border-color: var(--accent); color: var(--accent); text-shadow: var(--glow-accent); box-shadow: var(--glow-box); }
     .btn-spin:hover { background-color: var(--accent); color: var(--bg); text-shadow: none; box-shadow: 0 0 20px var(--accent); }
+
+    .btn-daily { border-color: #ffaa00; color: #ffaa00; text-shadow: 0 0 5px #ffaa00, 0 0 15px #ffaa00; box-shadow: 0 0 8px #ffaa00, inset 0 0 8px #ffaa00; margin-bottom: 10px; }
+    .btn-daily:hover { background-color: #ffaa00; color: var(--bg); text-shadow: none; box-shadow: 0 0 20px #ffaa00; }
+    .btn-daily:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
     
     .current-item-box { 
       background-color: var(--bg); color: var(--secondary); padding: 20px 10px; 
@@ -171,6 +175,11 @@
     .modal h2 { color: var(--accent); font-size: 1rem; margin-top: 0; text-shadow: var(--glow-accent); }
     .modal p { font-size: 0.6rem; line-height: 1.8; color: #ccc; text-align: left; margin: 0;}
 
+    /* New Stats Menu Blocks */
+    .stat-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #333; padding: 15px 0; }
+    .stat-label { font-size: 0.7rem; color: #aaa; }
+    .stat-value { font-size: 1rem; color: var(--accent); text-shadow: var(--glow-accent); }
+
     .blink { animation: blinker 1s linear infinite; }
     @keyframes blinker { 50% { opacity: 0; } }
   </style>
@@ -185,7 +194,7 @@
 
       <div id="help-modal" class="modal">
         <h2>HOW TO PLAY</h2>
-        <p>1. SELECT CATEGORY.</p>
+        <p>1. SELECT CATEGORY OR DAILY.</p>
         <p>2. A RANDOM ITEM WILL APPEAR.</p>
         <p>3. RANK IT IN A SLOT (1-5).</p>
         <p>4. NO CHANGING ONCE PLACED!</p>
@@ -208,10 +217,17 @@
 
         <div id="home-screen" class="screen">
           <div class="subtitle">BLINDLY RANK YOUR TOP 5 AND GET YOUR META SYNERGY SCORE</div>
-          <h3 style="text-align: center; color: #aaaaaa; font-size: 0.8rem; margin-top: 0;" id="sub-menu-title">SELECT CATEGORY</h3>
+          
+          <button class="btn btn-daily" id="daily-btn" onclick="startDaily()">DAILY CHALLENGE 📅</button>
+          
+          <h3 style="text-align: center; color: #aaaaaa; font-size: 0.8rem; margin-top: 10px;" id="sub-menu-title">SELECT CATEGORY</h3>
           <div id="category-buttons" style="display: flex; flex-direction: column; gap: 15px;"></div>
           <div style="height: 5px;"></div>
-          <button class="btn btn-spin" id="spin-btn" onclick="spinWheel()">RNG CATEGORY</button>
+          
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-spin" id="spin-btn" style="flex: 1;" onclick="spinWheel()">RNG 🎲</button>
+            <button class="btn" style="flex: 1; border-color: #00e5ff; color: #00e5ff;" onclick="openStats()">STATS 📊</button>
+          </div>
         </div>
 
         <div id="game-screen" class="screen">
@@ -219,6 +235,26 @@
           <div class="current-item-box" id="current-item">LOADING...</div>
           <div id="slots-container"></div>
         </div>
+
+        <div id="stats-screen" class="screen">
+          <h2 style="color: #00e5ff; text-align: center; text-shadow: 0 0 10px #00e5ff; margin-bottom: 20px;">PLAYER STATS</h2>
+          
+          <div class="stat-row">
+            <span class="stat-label">GAMES PLAYED</span>
+            <span class="stat-value" id="stat-games">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">AVG SYNERGY</span>
+            <span class="stat-value" id="stat-avg">0%</span>
+          </div>
+          <div class="stat-row" style="border-bottom: none;">
+            <span class="stat-label">PERFECT 100s</span>
+            <span class="stat-value" id="stat-perfects" style="color: #ffaa00; text-shadow: 0 0 10px #ffaa00;">0</span>
+          </div>
+
+          <button class="btn" style="margin-top: 30px; border-color: var(--secondary); color: var(--secondary);" onclick="switchScreen('home-screen')">BACK</button>
+        </div>
+
       </div>
     </div>
 
@@ -239,6 +275,8 @@
     let currentItemIndex = 0;
     let rankedSlots = [null, null, null, null, null];
     let deferredPrompt; 
+    let isDailyMode = false;
+    let scoreSavedThisRound = false;
 
     let soundOn = true;
     let audioCtx = null;
@@ -309,9 +347,7 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          console.log('App Installed');
-        }
+        if (outcome === 'accepted') console.log('App Installed');
         deferredPrompt = null;
         document.getElementById('install-btn').style.display = 'none';
       }
@@ -322,12 +358,34 @@
       deferredPrompt = null;
     });
 
+    // --- PRNG for Daily Seed ---
+    function mulberry32(a) {
+        return function() {
+          var t = a += 0x6D2B79F5;
+          t = Math.imul(t ^ t >>> 15, t | 1);
+          t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        }
+    }
+
+    function getDailySeed() {
+        let d = new Date();
+        // Strictly formats the current local day to generate a hash
+        let dateStr = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; 
+        let hash = 0;
+        for (let i = 0; i < dateStr.length; i++) {
+            hash = Math.imul(31, hash) + dateStr.charCodeAt(i) | 0;
+        }
+        return hash;
+    }
+
     async function initApp() {
       try {
         const response = await fetch('database.json');
         if (!response.ok) throw new Error("Database load failed");
         gameData = await response.json();
         buildMainMenu();
+        checkDailyStatus();
         switchScreen('home-screen');
       } catch (error) {
         document.getElementById('loading-screen').innerHTML = `<h3 style="color:red; text-align:center; font-size: 0.8rem; text-shadow: 0 0 10px red; margin-top: 40px;">ERROR: DB NOT FOUND</h3>`;
@@ -351,27 +409,51 @@
       }
     }
 
-    function spinWheel() {
-      const btn = document.getElementById('spin-btn');
-      const allCategories = Object.keys(gameData["Video Games"]);
-
-      let spins = 0;
-      const interval = setInterval(() => {
-        playSound('tick');
-        const randomCat = allCategories[spins % allCategories.length];
-        btn.innerText = `...${randomCat.substring(0, 10)}...`;
-        spins++;
-        if (spins > 15) {
-          clearInterval(interval);
-          playSound('bloop');
-          const finalCat = allCategories[Math.floor(Math.random() * allCategories.length)];
-          startGame(finalCat);
+    function checkDailyStatus() {
+        const btn = document.getElementById('daily-btn');
+        let today = new Date().toDateString();
+        if (localStorage.getItem('rr_lastDailyDate') === today) {
+            btn.innerText = `DAILY DONE: ${localStorage.getItem('rr_lastDailyScore')}%`;
+            btn.disabled = true;
+        } else {
+            btn.innerText = "DAILY CHALLENGE 📅";
+            btn.disabled = false;
         }
-      }, 80);
+    }
+
+    function startDaily() {
+        initAudio();
+        isDailyMode = true;
+        scoreSavedThisRound = false;
+
+        let rng = mulberry32(getDailySeed());
+        const allCategories = Object.keys(gameData["Video Games"]);
+        
+        // Pick a seeded category
+        const catIndex = Math.floor(rng() * allCategories.length);
+        const category = allCategories[catIndex];
+        
+        // Pick seeded items
+        let dataPool = [...gameData["Video Games"][category]];
+        for (let i = dataPool.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            [dataPool[i], dataPool[j]] = [dataPool[j], dataPool[i]];
+        }
+        
+        activeItems = dataPool.slice(0, 5);
+        currentItemIndex = 0;
+        rankedSlots = [null, null, null, null, null];
+        
+        document.getElementById('category-label').innerText = `DAILY: ${category}`;
+        switchScreen('game-screen');
+        updateGameUI();
     }
 
     function startGame(category) {
       initAudio();
+      isDailyMode = false;
+      scoreSavedThisRound = false;
+
       let dataPool = [...gameData["Video Games"][category]];
       if (dataPool.length < 5) return;
 
@@ -384,6 +466,64 @@
       updateGameUI();
     }
 
+    function spinWheel() {
+      const btn = document.getElementById('spin-btn');
+      const allCategories = Object.keys(gameData["Video Games"]);
+
+      let spins = 0;
+      const interval = setInterval(() => {
+        playSound('tick');
+        const randomCat = allCategories[spins % allCategories.length];
+        btn.innerText = `${randomCat.substring(0, 6)}..`;
+        spins++;
+        if (spins > 15) {
+          clearInterval(interval);
+          playSound('bloop');
+          const finalCat = allCategories[Math.floor(Math.random() * allCategories.length)];
+          startGame(finalCat);
+          btn.innerText = "RNG 🎲";
+        }
+      }, 80);
+    }
+
+    function saveStats(score) {
+        if (scoreSavedThisRound) return;
+
+        let games = parseInt(localStorage.getItem('rr_gamesPlayed')) || 0;
+        let totalScore = parseInt(localStorage.getItem('rr_totalScore')) || 0;
+        let perfects = parseInt(localStorage.getItem('rr_perfectRuns')) || 0;
+
+        games += 1;
+        totalScore += score;
+        if (score === 100) perfects += 1;
+
+        localStorage.setItem('rr_gamesPlayed', games);
+        localStorage.setItem('rr_totalScore', totalScore);
+        localStorage.setItem('rr_perfectRuns', perfects);
+
+        if (isDailyMode) {
+            localStorage.setItem('rr_lastDailyDate', new Date().toDateString());
+            localStorage.setItem('rr_lastDailyScore', score);
+        }
+
+        scoreSavedThisRound = true;
+    }
+
+    function openStats() {
+        playSound('bloop');
+        let games = parseInt(localStorage.getItem('rr_gamesPlayed')) || 0;
+        let totalScore = parseInt(localStorage.getItem('rr_totalScore')) || 0;
+        let perfects = parseInt(localStorage.getItem('rr_perfectRuns')) || 0;
+        
+        let avg = games > 0 ? Math.round(totalScore / games) : 0;
+
+        document.getElementById('stat-games').innerText = games;
+        document.getElementById('stat-avg').innerText = avg + '%';
+        document.getElementById('stat-perfects').innerText = perfects;
+
+        switchScreen('stats-screen');
+    }
+
     function updateGameUI() {
       const container = document.getElementById('slots-container');
       container.innerHTML = '';
@@ -392,7 +532,6 @@
       if (currentItemIndex >= 5) {
         playSound('win');
         
-        // Sorts based strictly on the integer "score" pulled from your database.json
         let perfectOrder = [...rankedSlots].sort((a, b) => b.score - a.score);
         let totalOffset = 0;
         
@@ -402,6 +541,7 @@
         });
 
         let finalPercent = Math.round(100 - ((totalOffset / 12) * 100));
+        saveStats(finalPercent); // Saves data to local storage
 
         currentItemBox.innerHTML = `META SYNERGY:<br><span style="font-size:1.8rem; color: #fff; text-shadow: 0 0 10px #fff;">${finalPercent}%</span>`;
         currentItemBox.style.color = "var(--accent)";
@@ -442,7 +582,7 @@
 
     function resetGame() {
       playSound('bloop');
-      document.getElementById('spin-btn').innerText = "RNG CATEGORY";
+      checkDailyStatus();
       switchScreen('home-screen');
     }
 
