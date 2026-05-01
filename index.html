@@ -170,6 +170,15 @@
     let currentItemIndex = 0;
     let rankedSlots = [null, null, null, null, null];
 
+    // --- HASH FUNCTION FOR HIDDEN META SCORE ---
+    function getMetaScore(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return Math.abs(hash % 100); 
+    }
+
     async function initApp() {
       try {
         const response = await fetch('database.json');
@@ -259,7 +268,18 @@
       container.innerHTML = '';
       
       if (currentItemIndex >= 5) {
-        document.getElementById('current-item').innerText = "RANKING COMPLETE";
+        // --- CALCULATE SCORE ---
+        let perfectOrder = [...rankedSlots].sort((a, b) => getMetaScore(b) - getMetaScore(a));
+        let totalOffset = 0;
+        
+        rankedSlots.forEach((item, index) => {
+          let perfectIndex = perfectOrder.indexOf(item);
+          totalOffset += Math.abs(index - perfectIndex);
+        });
+
+        let score = Math.round(100 - ((totalOffset / 12) * 100));
+
+        document.getElementById('current-item').innerHTML = `META SYNERGY:<br><span style="font-size:2rem; color: #fff;">${score}%</span>`;
         document.getElementById('current-item').style.color = "var(--accent)";
         document.getElementById('current-item').style.borderColor = "var(--accent)";
         
@@ -297,6 +317,11 @@
     function switchScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
+    }
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(() => console.log('SW Registered'));
     }
 
     initApp();
