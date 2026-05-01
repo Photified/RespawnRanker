@@ -118,7 +118,9 @@
 
     .subtitle {
       text-align: center; color: var(--secondary); font-size: 0.55rem; 
-      text-shadow: var(--glow-secondary); letter-spacing: 1px; margin-bottom: 20px;
+      text-shadow: var(--glow-secondary); letter-spacing: 1px; 
+      margin-top: 20px; /* Added spacing from the logo */
+      margin-bottom: 25px;
       line-height: 1.4;
     }
     
@@ -189,7 +191,7 @@
         <p>4. NO CHANGING ONCE PLACED!</p>
         <p>5. GET YOUR META SYNERGY SCORE.</p>
         <div style="height: 10px;"></div>
-        <button id="install-btn" class="btn" style="display: none; border-color: var(--accent); color: var(--accent);" onclick="installApp()">INSTALL APP</button>
+        <button id="install-btn" class="btn" style="display: none; border-color: var(--accent); color: var(--accent);" onclick="installApp()">INSTALL APP 💾</button>
         <button id="sound-toggle" class="btn btn-spin" onclick="toggleSound()">SOUND: ON 🔊</button>
         <button class="btn" style="border-color: var(--secondary); color: var(--secondary);" onclick="toggleModal()">CLOSE</button>
       </div>
@@ -236,7 +238,7 @@
     let activeItems = [];
     let currentItemIndex = 0;
     let rankedSlots = [null, null, null, null, null];
-    let deferredPrompt; // Variable to store the PWA install event
+    let deferredPrompt; 
 
     let soundOn = true;
     let audioCtx = null;
@@ -297,34 +299,25 @@
       modal.classList.toggle('active');
     }
 
-    // --- PWA INSTALLATION LOGIC ---
     window.addEventListener('beforeinstallprompt', (e) => {
-      // Prevent browser's default mini-infobar
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       deferredPrompt = e;
-      // Show the install button in the modal
       document.getElementById('install-btn').style.display = 'block';
     });
 
     async function installApp() {
       if (deferredPrompt) {
-        // Show the install prompt
         deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
           console.log('App Installed');
         }
-        // Clear the deferred prompt variable
         deferredPrompt = null;
-        // Hide the install button
         document.getElementById('install-btn').style.display = 'none';
       }
     }
 
     window.addEventListener('appinstalled', () => {
-      // Hide the install button if the app is successfully installed
       document.getElementById('install-btn').style.display = 'none';
       deferredPrompt = null;
     });
